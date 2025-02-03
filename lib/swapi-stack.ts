@@ -12,13 +12,6 @@ export class SwapiStack extends cdk.Stack {
 
     // TABLES
 
-    // const userTable = new Table(this, 'UserTable', {
-    //   tableName: 'UserTable',
-    //   partitionKey: { name: 'id', type: AttributeType.STRING },
-    //   removalPolicy: cdk.RemovalPolicy.DESTROY,
-    //   billingMode: BillingMode.PAY_PER_REQUEST
-    // });
-
     const userTable = new Table(this, 'UserTable', {
       tableName: 'UserTable',
       partitionKey: { name: 'id', type: AttributeType.STRING },
@@ -33,22 +26,8 @@ export class SwapiStack extends cdk.Stack {
       billingMode: BillingMode.PAY_PER_REQUEST
     });
 
-    const filmsTable = new Table(this, 'FilmsTable', {
-      tableName: 'FilmsTable',
-      partitionKey: { name: 'id', type: AttributeType.STRING },
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-      billingMode: BillingMode.PAY_PER_REQUEST
-    });
-
     const mergeCacheTable = new Table(this, 'MergeCacheTable', {
       tableName: 'ApiMergeCacheTable',
-      partitionKey: { name: 'cacheKey', type: AttributeType.STRING },
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-      timeToLiveAttribute: 'ttl'
-    });
-
-    const mergesCacheTable = new Table(this, 'MergesCacheTable', {
-      tableName: 'ApiMergesCacheTable',
       partitionKey: { name: 'cacheKey', type: AttributeType.STRING },
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       timeToLiveAttribute: 'ttl'
@@ -81,19 +60,6 @@ export class SwapiStack extends cdk.Stack {
       }
     });
 
-    // const mergesLambda = new NodejsFunction(this, 'MergesLambda', {
-    //   entry: 'lambdas/merges-function.ts',
-    //   runtime: Runtime.NODEJS_20_X,
-    //   memorySize: 128,
-    //   timeout: cdk.Duration.seconds(30),
-    //   environment: {
-    //     CACHE_MERGES_TABLE: mergesCacheTable.tableName,
-    //     FILMS_TABLE: filmsTable.tableName,
-    //     SWAPIAPI,
-    //     IMDBAPI
-    //   }
-    // });
-
     const historyMergeLambda = new NodejsFunction(this, 'GetHistoryMergeLambda', {
       entry: 'lambdas/get-merge-function.ts',
       runtime: Runtime.NODEJS_20_X,
@@ -107,28 +73,19 @@ export class SwapiStack extends cdk.Stack {
     // ACCESOS
 
     mergeCacheTable.grantReadWriteData(mergeLambda);
-    // mergesCacheTable.grantReadWriteData(mergesLambda);
 
     filmTable.grantReadWriteData(mergeLambda);
     filmTable.grantReadData(historyMergeLambda);
-
-    // filmsTable.grantReadWriteData(mergesLambda);
-    // filmsTable.grantReadData(historyMergesLambda);
 
     userTable.grantReadWriteData(userLambda);
 
     // API GATEWAY
 
     const api = new RestApi(this, 'RestApi', {
-      restApiName: 'RestApi',
-      // defaultCorsPreflightOptions: {
-      //   allowOrigins: Cors.ALL_METHODS,
-      //   allowMethods: Cors.ALL_METHODS
-      // }
+      restApiName: 'RestApi'
     });
 
     const merges = api.root.addResource('fusionados');
-    // merges.addMethod('GET', new LambdaIntegration(mergesLambda));
 
     const merge = merges.addResource('{id}');
     merge.addMethod('GET', new LambdaIntegration(mergeLambda));

@@ -5,8 +5,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   const page: string = event.queryStringParameters?.page || '1'
   let filmList: Array<any> = [];
 
-  console.log('page', page);
-
   try {
     const response: AxiosResponse = await axios.get(`https://swapi.dev/api/films?page=${page}`);
     const results: Array<any> = response.data?.results || [];
@@ -24,11 +22,9 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: 'Se ha producido un error' })
+      body: JSON.stringify({ message: 'There was an internal error.' })
     }
   }
-
-  console.log('filmList 1', filmList);
 
   if (filmList.length < 1) {
     return {
@@ -57,13 +53,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     console.log('error imdb', error);
   }
 
-  console.log('filmList 2', filmList);
-
   return {
     statusCode: 200,
     body: JSON.stringify({
-      data: filmList,
-      message: 'Te quiero mucho mamita'
+      data: filmList
     })
   };
 }

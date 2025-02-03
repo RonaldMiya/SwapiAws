@@ -45,6 +45,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   return {
     statusCode: 201,
     body: JSON.stringify({
+      message: 'OK',
       id
     })
   };
@@ -68,8 +69,6 @@ async function storeUser(data: any) {
     await dynamoDB.send(
       new PutCommand(params)
     );
-
-    console.log('User Insertado');
   } catch (error) {
     console.error('Error al almacenar en User:', error);
   }

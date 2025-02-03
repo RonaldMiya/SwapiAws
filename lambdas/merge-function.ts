@@ -12,7 +12,7 @@ const CACHE_MERGE_TABLE: string = process.env.CACHE_MERGE_TABLE || '';
 const IMDBAPI: string = process.env.IMDBAPI || '';
 const SWAPIAPI: string = process.env.SWAPIAPI || '';
 
-const CACHE_TTL: number = 2 * 60 * 1000;
+// const CACHE_TTL: number = 2 * 60 * 1000;
 const dynamoDB: DynamoDB = new DynamoDB();
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -37,7 +37,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   } catch (error) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: 'Se ha producido un error' })
+      body: JSON.stringify({ message: 'There was an internal error.' })
     }
   }
 
@@ -63,15 +63,6 @@ async function getCache(key: string): Promise<IFilm | null> {
 
   if (!result.Item) {
     return null;
-  }
-
-  const { data, timestamp } = result.Item;
-
-  console.log('CACHE_TTL', CACHE_TTL);
-  console.log('TIME', Date.now() - timestamp);
-
-  if (Date.now() - timestamp < CACHE_TTL) {
-    return data;
   }
 
   return null;
@@ -127,7 +118,7 @@ async function putStoreInCache(key: string, data: any) {
       cacheKey: key,
       data,
       timestamp: Date.now(),
-      ttl: Math.floor(Date.now() / 1000) + 2 * 60
+      ttl: Math.floor(Date.now() / 1000) + 30 * 60 // Cache 30 mins
     },
   };
 
