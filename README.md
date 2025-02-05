@@ -10,7 +10,9 @@ La API permite interactuar con las APIs de **SWAPI** y **FM-DB API** para combin
 - **Integración con FM-DB API**: Obtén información de las películas de starwars en IMDB.
 - **AWS DynamoDB**: Crea y consulta los datos almacenados en la base de datos, asi como implementa el sistema de cache.
 - **CDK**: Framework de AWS que permite implementar la infraestructur de AWS usando lenguajes de programación como TS.
-- **Endpoints REST**: Existen tres endpoints solicitados para este reto.
+- **AWS KMS**: Servicio para el hash de la contraseña a nivel sincrona.
+- **API Gateway**: Endpoints REST API, existen tres endpoints solicitados para este reto.
+- **Arquitectura Limpia (Clean Architecture)**: Código organizado para facilitar su mantenimiento y extensibilidad.
 
 ## Instalación
 
@@ -38,6 +40,11 @@ Para clonar y ejecutar este proyecto localmente, sigue estos pasos:
    npm run cdk deploy
    ```
 
+3. Para remover el proyecto entero de AWS deberá de ejecutar:
+   ```bash
+   npm run cdk destroy [stack]
+   ```
+
 ## Endpoints
 
 1. **Obtener personajes de DynamoDB:**
@@ -45,7 +52,8 @@ Para clonar y ejecutar este proyecto localmente, sigue estos pasos:
    ```bash
    GET /fusionados/{ID}
    ```
-   El **ID** deberá de ser algún film almacenado en la API de SWAPI.
+   - El **ID** deberá de ser algún film almacenado en la API de SWAPI.
+   - Se implementó el Rate Limit
 
    - **Descripción**: Fusiona los datos obtenidos de las apis **SWAPI** y **FM-DB API** en un solo modelo llamado Film que esa almacenado en una tabla de DynamoDB. También guarda provicionalmente la respuesta de las apis en una tabla de DynamoDB que se elimina posterior a los 30 mins.
 
@@ -110,11 +118,12 @@ Para clonar y ejecutar este proyecto localmente, sigue estos pasos:
    - **Body** (Ejemplo):
 
      ```json
-     {
-        "name": "María",
-        "lastName": "Castro",
-        "email": "maria.castro@gmail.com"
-     }
+      {
+         "name": "Mario",
+         "lastName": "Te",
+         "email": "mario.te@gmail.com",
+         "password": "my-password"
+      }
      ```
 
    - **Respuesta** (Ejemplo):
@@ -122,6 +131,12 @@ Para clonar y ejecutar este proyecto localmente, sigue estos pasos:
      ```json
      {
        "message": "OK",
-       "id": "8343113b-342f-4f62-891d-5615642dabaa"
+       "data": {
+         "id": "c2bb37c3-19c5-465d-a407-c3386ab62a1b",
+         "name": "Mario",
+         "lastName": "Te",
+         "email": "mario.te@gmail.com",
+         "confirmed": false
+       }
      }
      ```
